@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 // tools/batch-enrich.cjs
-// Batch-enriches all Atlas topics with Wikipedia content + Claude evaluation.
+// Batch-enriches all Atlas topics with Wikipedia content + OpenAI GPT-4o-mini evaluation.
 //
 // Usage:
-//   ANTHROPIC_API_KEY=sk-ant-... node tools/batch-enrich.cjs
+//   OPENAI_API_KEY=sk-proj-... node tools/batch-enrich.cjs
 //   node tools/batch-enrich.cjs --dry-run          # fetch Wikipedia only, skip Claude
 //   node tools/batch-enrich.cjs --subject math      # enrich one subject only
 //   node tools/batch-enrich.cjs --topic calc1       # enrich one topic only
@@ -32,9 +32,9 @@ const TOPIC_FILTER   = args[args.indexOf('--topic') + 1] || null;
 const SINCE_DAYS     = parseInt(args[args.indexOf('--since') + 1]) || 30;
 const CONCURRENCY    = 3; // parallel fetches (stay polite to Wikipedia)
 
-const API_KEY = DRY_RUN ? null : process.env.ANTHROPIC_API_KEY;
+const API_KEY = DRY_RUN ? null : process.env.OPENAI_API_KEY;
 if (!DRY_RUN && !API_KEY) {
-  console.warn('⚠  ANTHROPIC_API_KEY not set — will skip Claude evaluation (--dry-run mode).');
+  console.warn('⚠  OPENAI_API_KEY not set — will skip AI evaluation (--dry-run mode).');
 }
 
 // ------------------------------------------------------------------ //
@@ -106,7 +106,7 @@ function generateJS(cache, topics) {
   const js = `// content/_enrichment.js
 // AUTO-GENERATED — do not edit by hand.
 // Run: npm run enrich
-// Sources: Wikipedia REST API + Wikimedia Commons (CC BY-SA) + Claude evaluation
+// Sources: Wikipedia REST API + Wikimedia Commons (CC BY-SA) + OpenAI evaluation
 // Last updated: ${new Date().toISOString()}
 // Topics enriched: ${Object.keys(enriched).length} / ${topics.length}
 
@@ -183,7 +183,7 @@ function generateJS(cache, topics) {
 
 async function main() {
   console.log('Supergravity enrichment pipeline');
-  console.log(`  Mode: ${DRY_RUN ? 'dry-run (no Claude)' : 'full (Wikipedia + Claude)'}`);
+  console.log(`  Mode: ${DRY_RUN ? 'dry-run (no AI)' : 'full (Wikipedia + OpenAI)'}`);
   console.log(`  Staleness threshold: ${SINCE_DAYS} days`);
 
   const allTopics = loadTopics();

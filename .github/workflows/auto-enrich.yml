@@ -23,7 +23,7 @@ concurrency:
 
 jobs:
   enrich:
-    name: Enrich Atlas with Wikipedia + Claude
+    name: Enrich Atlas with Wikipedia + OpenAI
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -47,7 +47,7 @@ jobs:
 
       - name: Run enrichment pipeline
         env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           ARGS="--since ${{ github.event.inputs.since || '30' }}"
           if [ -n "${{ github.event.inputs.topic }}" ]; then

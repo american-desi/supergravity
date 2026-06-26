@@ -1,5 +1,5 @@
-// Vercel serverless function — Claude proxy.
-// Keeps ANTHROPIC_API_KEY server-side; client never sees it.
+// Vercel serverless function — OpenAI proxy.
+// Keeps OPENAI_API_KEY server-side; client never sees it.
 // Accepts: POST { messages, model?, max_tokens?, system? }
 // Returns: { completion } (string) or { error } on failure.
 
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) return res.status(503).json({ error: 'API key not configured on server.' });
 
   const { messages, model, max_tokens, system } = req.body || {};
@@ -19,32 +19,34 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'messages array required' });
   }
 
-  try {
-    const body = {
-      model: model || 'claude-haiku-4-5-20251001',
-      max_tokens: max_tokens || 1024,
-      messages,
-    };
-    if (system) body.system = system;
+  // Convert Anthropic-style { role, content } messages to OpenAI format
+  // (they share the same shape, but add system as a message if provided)
+  const openaiMessages = [];
+  if (system) openaiMessages.push({ role: 'system', content: system });
+  openaiMessages.push(...messages);
 
-    const upstream = await fetch('https://api.anthropic.com/v1/messages', {
+  try {
+    const upstream = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'Authorization': `Bearer ${apiKey}`,
         'content-type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({
+        model: model || 'gpt-4o-mini',
+        max_tokens: max_tokens || 1024,
+        messages: openaiMessages,
+      }),
     });
 
     if (!upstream.ok) {
       const text = await upstream.text().catch(() => '');
-      return res.status(upstream.status).json({ error: `Anthropic ${upstream.status}: ${text.slice(0, 300)}` });
+      return res.status(upstream.status).json({ error: `OpenAI ${upstream.status}: ${text.slice(0, 300)}` });
     }
 
     const data = await upstream.json();
-    const completion = data.content?.[0]?.text ?? '';
-    return res.status(200).json({ completion, content: data.content });
+    const completion = data.choices?.[0]?.message?.content ?? '';
+    return res.status(200).json({ completion, content: [{ text: completion }] });
   } catch (err) {
     return res.status(500).json({ error: err.message || 'Internal error' });
   }

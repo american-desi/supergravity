@@ -1,5 +1,5 @@
 // tools/enrich-topic.cjs
-// Fetches Wikipedia + Wikimedia Commons for one topic, then uses Claude
+// Fetches Wikipedia + Wikimedia Commons for one topic, then uses OpenAI GPT-4o-mini
 // to synthesize and truth-evaluate the content.
 //
 // Usage (from batch-enrich.cjs):
@@ -176,7 +176,7 @@ async function getWikiImages(title, maxImages = 5) {
 // Step 4 — Claude evaluation (synthesis + truth grading)
 // ------------------------------------------------------------------ //
 
-async function claudeEval(topic, summary, apiKey) {
+async function openaiEval(topic, summary, apiKey) {
   if (!apiKey) return null;
 
   const prompt = `You are an epistemologist and educator for "Supergravity — Atlas of Everything", an educational platform for all ages.
@@ -198,22 +198,21 @@ Evaluate this content carefully. Return ONLY valid JSON (no markdown, no explana
 }`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'Authorization': `Bearer ${apiKey}`,
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
+        model: 'gpt-4o-mini',
         max_tokens: 800,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
     if (!res.ok) return null;
     const data = await res.json();
-    const text = data.content?.[0]?.text || '';
+    const text = data.choices?.[0]?.message?.content || '';
     // Extract JSON from response
     const match = text.match(/\{[\s\S]*\}/);
     if (!match) return null;
@@ -252,7 +251,7 @@ async function enrichTopic(topic, apiKey, opts = {}) {
     const wikiScore = wikiReliability(estRefs, 500, !!summary.thumbnail);
     const truthScore = aggregateTruth([{ weight: wikiScore, corroborates: true }]);
 
-    const ai = await claudeEval(topic, summary, apiKey);
+    const ai = await openaiEval(topic, summary, apiKey);
 
     if (verbose) console.log(`✓ ${wikiTitle} (${images.length} imgs, score ${(ai?.truthScore || truthScore).toFixed(2)})`);
 
