@@ -76,6 +76,14 @@ const LessonPageV2 = ({ topicId, subjectId, onNav }) => {
         </button>
       )}
 
+      {/* Wonder Hook — visible in Explorer mode only */}
+      {lesson.wonderHook && (
+        <div className="wonder-hook" aria-label="Wonder hook">
+          <div className="wonder-hook-icon">⚡</div>
+          <div className="wonder-hook-text">{lesson.wonderHook}</div>
+        </div>
+      )}
+
       <article className="lesson-body">
         <Prerequisites prerequisites={lesson.prerequisites} onNav={onNav}/>
 
@@ -137,6 +145,26 @@ const LessonPageV2 = ({ topicId, subjectId, onNav }) => {
               ))}
             </div>
           </section>
+        )}
+
+        {/* Wikipedia source + truth score */}
+        {lesson.wikiUrl && (
+          <div className="wiki-source">
+            <div className="wiki-source-inner">
+              <div className="wiki-source-left">
+                <span className="wiki-source-icon">W</span>
+                <div>
+                  <div className="wiki-source-title">Wikipedia · {lesson.wikiTitle || lesson.title}</div>
+                  <div className="wiki-source-meta">
+                    {lesson.confidence && <span className={`truth-badge truth-badge--${lesson.confidence}`}>{lesson.confidence} confidence</span>}
+                    {lesson.enrichedAt && <span className="wiki-source-date">Verified {new Date(lesson.enrichedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'short' })}</span>}
+                  </div>
+                </div>
+              </div>
+              <a href={lesson.wikiUrl} target="_blank" rel="noopener noreferrer" className="wiki-source-link">Read full article →</a>
+            </div>
+            {lesson.scholarNote && <div className="scholar-note">{lesson.scholarNote}</div>}
+          </div>
         )}
 
         {/* Supergravity pull — cross-field gravity between disciplines */}

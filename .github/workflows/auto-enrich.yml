@@ -1,0 +1,76 @@
+name: Weekly Atlas Enrichment
+
+on:
+  schedule:
+    # Every Sunday at 03:00 UTC — low traffic, fresh Wikipedia revisions
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      subject:
+        description: 'Enrich a single subject (e.g. math, physics). Leave blank for all.'
+        required: false
+      topic:
+        description: 'Enrich a single topic ID (e.g. calc1). Overrides subject.'
+        required: false
+      since:
+        description: 'Re-enrich topics older than N days (default: 30)'
+        required: false
+        default: '30'
+
+concurrency:
+  group: enrich
+  cancel-in-progress: false   # never cancel mid-run — avoid partial cache writes
+
+jobs:
+  enrich:
+    name: Enrich Atlas with Wikipedia + Claude
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: write   # needed to commit enrichment output
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Run enrichment pipeline
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          ARGS="--since ${{ github.event.inputs.since || '30' }}"
+          if [ -n "${{ github.event.inputs.topic }}" ]; then
+            ARGS="$ARGS --topic ${{ github.event.inputs.topic }}"
+          elif [ -n "${{ github.event.inputs.subject }}" ]; then
+            ARGS="$ARGS --subject ${{ github.event.inputs.subject }}"
+          fi
+          node tools/batch-enrich.cjs $ARGS
+
+      - name: Check for changes
+        id: diff
+        run: |
+          git diff --quiet content/_enrichment.js content/_enrichment-cache.json || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit enriched content
+        if: steps.diff.outputs.changed == 'true'
+        run: |
+          git config user.name  "Atlas Bot"
+          git config user.email "atlas-bot@users.noreply.github.com"
+          git add content/_enrichment.js content/_enrichment-cache.json
+          git commit -m "chore(content): weekly Wikipedia enrichment $(date -u '+%Y-%m-%d')"
+          git push
+
+      - name: No changes
+        if: steps.diff.outputs.changed != 'true'
+        run: echo "All topics are fresh — nothing committed."

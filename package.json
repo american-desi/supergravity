@@ -9,6 +9,8 @@
   "scripts": {
     "build": "node scripts/build.cjs",
     "build:content": "./tools/build-content-bundle.sh",
+    "enrich": "node tools/batch-enrich.cjs",
+    "enrich:dry": "node tools/batch-enrich.cjs --dry-run",
     "dev": "npx serve . -l 3000",
     "lint": "echo 'No linter configured yet.'"
   },

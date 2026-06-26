@@ -624,4 +624,121 @@ body.age-explorer .key-term-chip {
 @media (max-width: 768px) {
   .age-toggle-label { display: none; }
 }
+
+/* ============================================
+   Wonder Hook — Explorer-mode curiosity spark
+   ============================================ */
+.wonder-hook {
+  display: none; /* hidden in Scholar mode */
+  align-items: flex-start;
+  gap: 14px;
+  margin: 0 0 32px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, rgba(224,154,90,0.10) 0%, rgba(224,154,90,0.04) 100%);
+  border: 1px solid rgba(224,154,90,0.35);
+  border-left: 4px solid var(--amber);
+  border-radius: 4px;
+}
+body.age-explorer .wonder-hook { display: flex; }
+.wonder-hook-icon {
+  font-size: 22px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.wonder-hook-text {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 18px;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* ============================================
+   Wikipedia Source Footer
+   ============================================ */
+.wiki-source {
+  margin: 40px 0 0;
+  padding: 20px 0 0;
+  border-top: 1px solid var(--rule-soft);
+}
+.wiki-source-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.wiki-source-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.wiki-source-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--serif);
+  font-size: 16px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+.wiki-source-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.wiki-source-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wiki-source-date {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.05em;
+}
+.wiki-source-link {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--lapis, #2980b9);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+.wiki-source-link:hover { text-decoration: underline; }
+
+/* Truth confidence badge */
+.truth-badge {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid currentColor;
+}
+.truth-badge--high   { color: #27ae60; }
+.truth-badge--medium { color: var(--amber); }
+.truth-badge--low    { color: var(--wine, #8e1a1a); }
+.truth-badge--unverified { color: var(--ink-3); }
+
+/* Scholar note — advanced nuance */
+.scholar-note {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: var(--paper-2);
+  border-left: 2px solid var(--lapis, #2980b9);
+  font-size: 13px;
+  color: var(--ink-2);
+  line-height: 1.6;
+  font-style: italic;
+}
 .study-plan-day-what { flex: 1; }
