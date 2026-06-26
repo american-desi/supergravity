@@ -55,3 +55,8 @@ DerivedData/
 # Internal
 .cowork/
 .claude/
+.vercel
+.env*
+
+# Local Netlify folder
+.netlify
