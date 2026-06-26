@@ -21,59 +21,62 @@
 <body>
   <div id="root"></div>
 
-  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <!-- React 18 production builds — no devtools overhead, ~180KB vs 1.1MB dev -->
+  <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin="anonymous"></script>
 
   <script src="data.js"></script>
   <script src="lessons.js"></script>
   <script src="lessons-hero.js"></script>
 
-  <!-- ===== Supergravity content =====
-       Production: one bundle ≈ 3.7MB, one HTTP request.
-       Build it with:  ./tools/build-content-bundle.sh
-       The bundle concatenates every content/*.js subject file and appends
-       content/_bootstrap.js at the end.
-
-       Dev mode (live-editing a specific subject without rebuilding):
-       comment out the bundle line below and append:
-         <script src="content/<subject-id>.js"></script>
-         <script src="content/_bootstrap.js"></script>
-       Keep the bundle line commented in so any batch session that rebuilds
-       after you're done doesn't silently drop your subject.
-  -->
+  <!-- Content bundle (≈ 3.7MB, one HTTP request).
+       Build with: ./tools/build-content-bundle.sh
+       Dev mode: comment this line, uncomment your subject file + _bootstrap.js below. -->
   <script src="content/_bundle.js"></script>
+  <!-- <script src="content/<subject-id>.js"></script> -->
+  <!-- <script src="content/_bootstrap.js"></script> -->
 
   <script src="tutor-api.js"></script>
-  <script type="text/babel" src="components.jsx"></script>
-  <script type="text/babel" src="interactives.jsx"></script>
-  <script type="text/babel" src="interactives-v2.jsx"></script>
 
-  <!-- All batch-specific interactive registries, bundled. Regenerate with
-       ./tools/build-content-bundle.sh after editing any of the source files:
-       content/math-interactives.jsx, content/interactives-b02.jsx,
-       content/interactives-b03.jsx, content/interactives-b03-rich.jsx,
-       content/interactives-b04.jsx -->
-  <script type="text/babel" src="content/_interactives-bundle.jsx"></script>
+  <!-- Compiled app bundle — all JSX pre-compiled, no Babel needed.
+       Build with: npm run build  (requires Node + esbuild, run once after changes)
+       Dev fallback: if dist/sg-app.js is absent, reload with ?babel=1 to use Babel inline. -->
+  <script>
+    (function() {
+      var compiled = document.createElement('script');
+      compiled.src = 'dist/sg-app.js';
+      compiled.onerror = function() {
+        // dist/sg-app.js not found (local dev without a build) — load Babel fallback
+        if (!location.search.includes('babel=1')) {
+          location.replace(location.href + (location.search ? '&babel=1' : '?babel=1'));
+        }
+      };
+      document.currentScript.parentNode.appendChild(compiled);
+    })();
+  </script>
 
-  <!-- B04 post-bootstrap enhancement: splices inline interactives / images
-       into key lesson bodies. Must run AFTER all interactive registries. -->
-  <script type="text/babel" src="content/b04-enhance.js"></script>
-  <script type="text/babel" src="tutor.jsx"></script>
-  <script type="text/babel" src="tutor-v2.jsx"></script>
-  <script type="text/babel" src="extras.jsx"></script>
-  <script type="text/babel" src="extras2.jsx"></script>
-  <script type="text/babel" src="pages.jsx"></script>
-  <script type="text/babel" src="pages-v2.jsx"></script>
-  <script type="text/babel" src="hero-visual.jsx"></script>
-  <script type="text/babel" src="atlas-v3.jsx"></script>
-  <script type="text/babel" src="auth.jsx"></script>
-  <script type="text/babel" src="home.jsx"></script>
-  <script type="text/babel" src="workshop.jsx"></script>
-  <script type="text/babel" src="path.jsx"></script>
-  <script type="text/babel" src="rule.jsx"></script>
-  <script type="text/babel" src="chapters.jsx"></script>
-  <script type="text/babel" src="health.jsx"></script>
-  <script type="text/babel" src="app.jsx"></script>
+  <!-- Babel fallback: only loaded when ?babel=1 is in the URL.
+       This allows local development without running npm run build first. -->
+  <script>
+    if (location.search.includes('babel=1')) {
+      document.write('<scr'+'ipt src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></scr'+'ipt>');
+    }
+  </script>
+  <script>
+    if (location.search.includes('babel=1')) {
+      var babelScripts = [
+        'components.jsx','interactives.jsx','interactives-v2.jsx',
+        'content/_interactives-bundle.jsx','content/b04-enhance.js',
+        'tutor.jsx','tutor-v2.jsx','extras.jsx','extras2.jsx','pages.jsx',
+        'pages-v2.jsx','hero-visual.jsx','atlas-v3.jsx','auth.jsx',
+        'home.jsx','workshop.jsx','path.jsx','rule.jsx','chapters.jsx',
+        'health.jsx','app.jsx'
+      ];
+      // Inject as text/babel tags so Babel transforms them
+      babelScripts.forEach(function(src) {
+        document.write('<scr'+'ipt type="text/babel" src="'+src+'"></scr'+'ipt>');
+      });
+    }
+  </script>
 </body>
 </html>
