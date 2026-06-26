@@ -1,0 +1,320 @@
+/* ============================================
+   RESPONSIVE — tablet (≤960px) & phone (≤560px)
+   Overrides layout, sizing, and density for smaller screens.
+   ============================================ */
+
+/* ——— Tablet breakpoint (≤960px) ——— */
+@media (max-width: 960px) {
+  :root { --edge: 24px; }
+
+  /* Topbar: shrink padding, allow wrap */
+  .topbar {
+    padding: 12px var(--edge);
+    gap: 16px;
+  }
+  .brand-mark { width: 28px; height: 28px; }
+  .brand-name { font-size: 17px; }
+  .brand-sub { font-size: 8px; }
+  .nav-crumb { font-size: 12px; gap: 8px; }
+  .search { min-width: 0; }
+  .search input { font-size: 12px; }
+  .search kbd { display: none; }
+
+  /* Atlas v3 hero */
+  .atlas-v3-hero {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 44px 0 36px;
+    min-height: clamp(320px, 48vh, 420px);
+  }
+  .atlas-v3-hero h1 { font-size: clamp(52px, 10vw, 80px); }
+  .atlas-v3-hero-right {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--rule);
+    padding-top: 20px;
+  }
+  .atlas-v3-hero-right .counter { flex-wrap: wrap; gap: 14px; }
+
+  /* Toolbar — stack */
+  .atlas-toolbar {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    top: 60px;
+  }
+  .atlas-search { max-width: none; }
+  .atlas-viewtoggle { justify-self: start; }
+
+  /* Category sections */
+  .atlas-cat-head {
+    grid-template-columns: auto 1fr;
+    gap: 16px 20px;
+    padding-bottom: 14px;
+  }
+  .atlas-cat-head .num { font-size: 48px; }
+  .atlas-cat-head h2 { font-size: clamp(28px, 5vw, 40px); }
+  .atlas-cat-head .tag {
+    grid-column: 1 / -1;
+    text-align: left;
+    display: flex;
+    gap: 16px;
+  }
+  .atlas-cat-head .tag > div { margin-top: 0 !important; }
+
+  /* Grid view */
+  .atlas-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+  .atlas-grid-card { min-height: 160px; padding: 18px 16px 16px; }
+  .atlas-grid-card-name { font-size: 22px; }
+
+  /* Index view */
+  .atlas-index { grid-template-columns: 1fr; }
+
+  /* Shelf view */
+  .atlas-shelf-book { height: 200px; min-width: 56px; }
+  .atlas-shelf-book .sb-name { font-size: 13px; }
+
+  /* Quick tools */
+  .atlas-quick { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+
+  /* Subject page */
+  .subject-hero { grid-template-columns: 1fr !important; gap: 20px; padding: 24px 0 32px; }
+  .subject-hero h1 { font-size: clamp(48px, 9vw, 72px) !important; }
+  .subject-nav { overflow-x: auto; white-space: nowrap; gap: 4px; scrollbar-width: none; }
+  .subject-nav::-webkit-scrollbar { display: none; }
+  .subject-nav-item { flex-shrink: 0; }
+  .topic-map { grid-template-columns: 1fr !important; gap: 28px; }
+  .topic-outline { position: static; border-right: none; border-bottom: 1px solid var(--rule); padding: 16px 0; }
+  .topic-list { grid-template-columns: 1fr !important; }
+
+  /* Lesson */
+  .lesson { padding: 0 var(--edge); }
+  .lesson-header h1 { font-size: clamp(40px, 8vw, 56px); }
+  .lesson-header .dek { font-size: 17px; }
+  .lesson-body { font-size: 16px; padding: 28px 0; }
+  .lesson-body h2 { font-size: 26px; margin: 28px 0 12px; }
+  .lesson-body h3 { font-size: 19px; }
+  .lesson-body .lead { font-size: 21px; }
+  .lesson-body .lead::first-letter { font-size: 4.2em; }
+  .lesson-meta { flex-wrap: wrap; gap: 10px 14px; font-size: 11px; }
+  .lesson-nav { grid-template-columns: 1fr; gap: 12px; }
+  .lesson-nav-item.next { text-align: left; }
+
+  /* Lesson extras */
+  .lesson-hero-img { aspect-ratio: 16 / 9; }
+  .video-title { font-size: 18px; }
+  .see-also { padding: 20px; }
+  .see-also-grid { grid-template-columns: 1fr 1fr; }
+
+  /* Glossary */
+  .glossary-entry {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 14px 0;
+  }
+  .glossary-entry-term { font-size: 20px; }
+  .glossary-alpha { gap: 2px; }
+  .glossary-letter { width: 28px; height: 28px; font-size: 13px; }
+
+  /* Timeline */
+  .timeline-row-label { width: 90px; font-size: 9px; padding-right: 10px; }
+  .timeline-event { max-width: 120px; font-size: 10px; padding: 4px 7px; }
+  .timeline-head h1 { font-size: clamp(42px, 9vw, 72px); }
+
+  /* Map */
+  .map-head h1 { font-size: clamp(42px, 9vw, 72px); }
+
+  /* Daily */
+  .daily-masthead { font-size: clamp(52px, 12vw, 96px); }
+  .daily-dateline { font-size: 10px; letter-spacing: 0.2em; gap: 12px; flex-wrap: wrap; }
+
+  /* Featured / pathways / footer */
+  .featured { grid-template-columns: 1fr !important; gap: 32px; padding: 40px; }
+  .pathways { grid-template-columns: 1fr 1fr; }
+  .subject-grid { grid-template-columns: repeat(2, 1fr); }
+
+  /* Progress / flashcards pages */
+  .flashcards-page, .progress-page { padding: 0 var(--edge); }
+}
+
+/* ——— Phone breakpoint (≤560px) ——— */
+@media (max-width: 560px) {
+  :root { --edge: 16px; }
+
+  /* Topbar: hide crumb + search, compact brand */
+  .topbar {
+    grid-template-columns: auto 1fr auto;
+    padding: 10px var(--edge);
+    gap: 10px;
+    min-height: 52px;
+  }
+  .brand-mark { width: 26px; height: 26px; }
+  .brand-name { font-size: 15px; }
+  .brand-sub { display: none; }
+  .nav-crumb { display: none; }
+  .search { display: none; }
+  .topbar-actions button { padding: 6px 8px; }
+
+  /* Atlas hero */
+  .atlas-v3-hero { padding: 20px 0 18px; gap: 20px; }
+  .atlas-v3-hero h1 { font-size: clamp(42px, 12vw, 60px); }
+  .atlas-v3-hero .dateline { font-size: 9px; letter-spacing: 0.2em; gap: 10px; flex-wrap: wrap; }
+  .atlas-v3-hero-right { font-size: 13px; }
+  .atlas-v3-hero-right .counter { gap: 12px; }
+  .atlas-v3-hero-right .counter strong { font-size: 18px; }
+
+  /* Toolbar + cats sticky */
+  .atlas-toolbar {
+    top: 52px;
+    padding: 10px 0;
+  }
+  .atlas-search { padding: 8px 14px; }
+  .atlas-search input { font-size: 15px; }
+  .atlas-viewtoggle button { padding: 6px 10px; font-size: 9px; }
+  .atlas-cats { margin-bottom: 32px; }
+  .atlas-cat-tab { padding: 10px 12px; font-size: 9px; }
+
+  /* Grid: one column on phone for readability */
+  .atlas-grid { grid-template-columns: 1fr; }
+  .atlas-grid-card { min-height: 140px; }
+
+  /* Quick tools one per row */
+  .atlas-quick { grid-template-columns: 1fr 1fr; }
+  .atlas-quick-item { padding: 16px 14px; }
+  .atlas-quick-item .sym { font-size: 26px; }
+  .atlas-quick-item .lbl { font-size: 17px; }
+
+  /* Result rows — stack columns */
+  .atlas-result-row {
+    grid-template-columns: 1fr auto;
+    gap: 8px 14px;
+    padding: 12px 0;
+  }
+  .atlas-result-row .kind { grid-column: 1 / -1; width: auto; }
+  .atlas-result-row .where { grid-column: 1 / -1; color: var(--ink-3); }
+  .atlas-result-row .title { font-size: 17px; }
+
+  /* Category header further simplified */
+  .atlas-cat-head { gap: 10px; }
+  .atlas-cat-head .num { font-size: 40px; }
+  .atlas-cat-head h2 { font-size: 26px; }
+
+  /* Subject page */
+  .subject-hero h1 { font-size: clamp(40px, 12vw, 56px) !important; }
+  .subject-hero-num, .subject-hero-desc { font-size: 13px; }
+  .subject-nav-item { padding: 8px 12px; font-size: 10px; }
+
+  /* Lesson */
+  .lesson-header { padding: 24px 0 22px; }
+  .lesson-header h1 { font-size: clamp(34px, 9vw, 44px); line-height: 1; }
+  .lesson-header .dek { font-size: 15px; }
+  .lesson-body { font-size: 15px; padding: 22px 0; }
+  .lesson-body h2 { font-size: 22px; margin: 22px 0 10px; }
+  .lesson-body h3 { font-size: 17px; }
+  .lesson-body .lead { font-size: 18px; }
+  .lesson-body .lead::first-letter { font-size: 3.6em; margin-top: 2px; }
+  .pull-quote { margin: 28px 0; padding-left: 16px; font-size: 19px !important; }
+  .lesson-progress { gap: 4px; }
+  .see-also { padding: 16px; margin: 32px 0 20px; }
+  .see-also-grid { grid-template-columns: 1fr; }
+  .further-reading { margin: 28px 0; }
+  .book-row { gap: 12px; padding: 10px 0; }
+  .book-title { font-size: 16px; }
+  .key-term-chip { font-size: 11px; padding: 5px 10px; }
+  .lesson-callout { padding: 14px 16px; font-size: 16px; margin: 22px 0; }
+
+  /* Featured / pathways */
+  .featured { padding: 28px 20px; gap: 24px; }
+  .pathways { grid-template-columns: 1fr; }
+  .pathway { padding: 20px; }
+  .pathway h3 { font-size: 22px; }
+  .subject-grid { grid-template-columns: 1fr; }
+
+  /* Tutor dock: near-fullscreen on phone */
+  .tutor-dock {
+    right: 8px !important;
+    left: 8px !important;
+    bottom: 8px !important;
+    top: 60px !important;
+    width: auto !important;
+    max-height: none !important;
+    height: auto !important;
+  }
+  .tutor-fab {
+    bottom: 14px;
+    right: 14px;
+  }
+
+  /* Command palette */
+  .palette { width: calc(100vw - 24px); max-height: 80vh; }
+  .palette-input-row input { font-size: 18px; }
+
+  /* Timeline: simpler */
+  .timeline-row { height: 56px; }
+  .timeline-row-label { width: 70px; font-size: 8px; }
+  .timeline-event { max-width: 90px; font-size: 9px; }
+  .timeline-filter-chip { padding: 6px 10px; font-size: 11px; }
+
+  /* Glossary */
+  .glossary-head { padding: 20px 0 22px; margin-bottom: 20px; }
+  .glossary-head h1 { font-size: clamp(40px, 11vw, 64px); }
+
+  /* Daily */
+  .daily-section-label { margin: 28px 0 10px; font-size: 9px; }
+
+  /* Random */
+  .random-wheel { font-size: clamp(40px, 11vw, 68px); min-height: 140px; margin: 32px 0; }
+
+  /* Footer */
+  .footer {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 24px var(--edge);
+    font-size: 12px;
+  }
+
+  /* Tutor text input */
+  .tutor-input input { font-size: 15px; }
+
+  /* Interactive embeds — cap heights on small screens */
+  .interactive-embed { margin: 24px 0; }
+  .interactive-embed svg { max-width: 100%; height: auto; }
+}
+
+/* ——— Very small (≤380px) ——— */
+@media (max-width: 380px) {
+  :root { --edge: 12px; }
+  .brand-name { font-size: 13px; }
+  .atlas-v3-hero h1 { font-size: clamp(36px, 13vw, 48px); }
+  .atlas-quick { grid-template-columns: 1fr; }
+  .atlas-cat-tab { padding: 9px 10px; }
+}
+
+/* ——— Touch-friendly adjustments ——— */
+@media (hover: none) and (pointer: coarse) {
+  /* Make hover-only affordances visible */
+  .subject-card, .topic-card, .atlas-grid-card, .pathway { transition: none; }
+
+  /* Enlarge tap targets */
+  .atlas-cat-tab, .subject-nav-item, .tutor-mode-chip, .timeline-filter-chip {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+  }
+  .glossary-letter { min-width: 34px; min-height: 34px; }
+  .btn-ghost, .btn-primary { min-height: 36px; }
+}
+
+/* Reduced motion: freeze the hero animation */
+@media (prefers-reduced-motion: reduce) {
+  .hero-visual { display: none; }
+  .atlas-hero-wrap { background: var(--ink); }
+}
+
+/* Prevent horizontal scroll from overly wide children */
+html, body { overflow-x: hidden; }
+
+/* Improve readability on small screens for body text */
+@media (max-width: 560px) {
+  body { font-size: 15px; }
+  .lesson-body p, .lesson-body ul, .lesson-body ol { line-height: 1.6; }
+}

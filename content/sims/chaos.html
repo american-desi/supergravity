@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chaos Theory Explorer</title>
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #0a0a0f;
+  --surface: #12121a;
+  --surface2: #1a1a26;
+  --border: #2a2a3a;
+  --text: #e0e0e8;
+  --text-dim: #8888a0;
+  --accent: #6c5ce7;
+  --accent2: #00cec9;
+  --accent3: #fd79a8;
+  --danger: #ff6b6b;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* Header / Tab Bar */
+#header {
+  display: flex;
+  align-items: center;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 16px;
+  height: 48px;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+#header .logo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-right: 20px;
+  white-space: nowrap;
+  letter-spacing: 1px;
+}
+
+.tab {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  transition: all 0.2s;
+  white-space: nowrap;
+  background: none;
+  font-family: inherit;
+}
+
+.tab:hover {
+  color: var(--text);
+  background: var(--surface2);
+}
+
+.tab.active {
+  color: var(--accent);
+  background: var(--surface2);
+  border-color: var(--accent);
+}
+
+#fps-counter {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+/* Main content area */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+#canvas-wrap {
+  flex: 1;
+  position: relative;
+}
+
+canvas#mainCanvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Side panel */
+#panel {
+  width: 280px;
+  background: var(--surface);
+  border-left: 1px solid var(--border);
+  overflow-y: auto;
+  padding: 16px;
+  flex-shrink: 0;
+}
+
+#panel::-webkit-scrollbar { width: 4px; }
+#panel::-webkit-scrollbar-track { background: transparent; }
+#panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.panel-section {
+  margin-bottom: 20px;
+}
+
+.panel-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+
+.control-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.control-row label {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.control-row .val {
+  font-size: 11px;
+  color: var(--accent2);
+  min-width: 50px;
+  text-align: right;
+}
+
+input[type="range"] {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 4px 0 8px 0;
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  background: var(--accent);
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+select {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: inherit;
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+}
+
+select:focus { border-color: var(--accent); }
+
+.btn {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-family: inherit;
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.btn-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.info-text {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+/* Color scheme selector */
+.color-swatch {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+
+.color-swatch.active { border-color: var(--text); }
+
+.swatch-row {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* Overlay info */
+#overlay-info {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 11px;
+  color: var(--text-dim);
+  pointer-events: none;
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="header">
+    <span class="logo">CHAOS EXPLORER</span>
+    <button class="tab active" data-mode="attractors">Attractors</button>
+    <button class="tab" data-mode="bifurcation">Bifurcation</button>
+    <button class="tab" data-mode="mandelbrot">Mandelbrot/Julia</button>
+    <button class="tab" data-mode="cellular">Cellular Automata</button>
+    <button class="tab" data-mode="pendulum">Double Pendulum</button>
+    <span id="fps-counter">-- FPS</span>
+  </div>
+  <div id="main">
+    <div id="canvas-wrap">
+      <canvas id="mainCanvas"></canvas>
+      <div id="overlay-info"></div>
+    </div>
+    <div id="panel"></div>
+  </div>
+</div>
+
+<script>
+// =====================================================================
+// CHAOS THEORY EXPLORER - Complete Implementation
+// =====================================================================
+
+const canvas = document.getElementById('mainCanvas');
+const ctx = canvas.getContext('2d');
+const panel = document.getElementById('panel');
+const overlay = document.getElementById('overlay-info');
+const fpsEl = document.getElementById('fps-counter');
+
+let W, H, dpr;
+let currentMode = 'attractors';
+let animId = null;
+let frameCount = 0;
+let lastFpsTime = performance.now();
+let fps = 0;
+
+// Resize handler
+function resize() {
+  const wrap = document.getElementById('canvas-wrap');
+  dpr = window.devicePixelRatio || 1;
+  W = wrap.clientWidth;
+  H = wrap.clientHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+window.addEventListener('resize', () => { resize(); modes[currentMode].init?.(); });
+resize();
+
+// Tab switching
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    switchMode(tab.dataset.mode);
+  });
+});
+
+function switchMode(mode) {
+  if (animId) cancelAnimationFrame(animId);
+  modes[currentMode]?.cleanup?.();
+  currentMode = mode;
+  overlay.textContent = '';
+  resize();
+  modes[mode].buildPanel();
+  modes[mode].init();
+  loop();
+}
+
+function loop() {
+  frameCount++;
+  const now = performance.now();
+  if (now - lastFpsTime >= 500) {
+    fps = Math.round(frameCount / ((now - lastFpsTime) / 1000));
+    fpsEl.textContent = fps + ' FPS';
+    frameCount = 0;
+    lastFpsTime = now;
+  }
+  modes[currentMode].draw();
+  animId = requestAnimationFrame(loop);
+}
+
+// =====================================================================
+// COLOR PALETTES
+// =====================================================================
+
+const palettes = {
+  inferno: (t) => {
+    const c = [
+      [0, 0, 4], [40, 11, 84], [101, 21, 110],
+      [159, 42, 99], [212, 72, 66], [245, 125, 21],
+      [250, 193, 39], [252, 255, 164]
+    ];
+    return lerpPalette(c, t);
+  },
+  plasma: (t) => {
+    const c = [
+      [13, 8, 135], [84, 2, 163], [139, 10, 165],
+      [185, 50, 137], [219, 92, 104], [244, 136, 73],
+      [254, 188, 43], [240, 249, 33]
+    ];
+    return lerpPalette(c, t);
+  },
+  viridis: (t) => {
+    const c = [
+      [68, 1, 84], [72, 36, 117], [65, 68, 135],
+      [53, 95, 141], [42, 120, 142], [33, 145, 140],
+      [53, 183, 121], [109, 205, 89], [180, 222, 44], [253, 231, 37]
+    ];
+    return lerpPalette(c, t);
+  },
+  twilight: (t) => {
+    const c = [
+      [226, 217, 226], [166, 126, 184], [90, 67, 154],
+      [34, 34, 102], [20, 20, 56], [34, 34, 102],
+      [90, 67, 154], [166, 126, 184], [226, 217, 226]
+    ];
+    return lerpPalette(c, t);
+  },
+  electric: (t) => {
+    const c = [
+      [0, 0, 20], [10, 0, 80], [40, 0, 180],
+      [0, 180, 220], [0, 255, 160], [200, 255, 80], [255, 255, 255]
+    ];
+    return lerpPalette(c, t);
+  },
+  fire: (t) => {
+    const c = [
+      [0, 0, 0], [40, 0, 0], [120, 10, 0],
+      [200, 50, 0], [255, 130, 0], [255, 210, 50], [255, 255, 200]
+    ];
+    return lerpPalette(c, t);
+  }
+};
+
+let currentPalette = 'inferno';
+
+function lerpPalette(colors, t) {
+  t = Math.max(0, Math.min(1, t));
+  const n = colors.length - 1;
+  const i = Math.min(Math.floor(t * n), n - 1);
+  const f = t * n - i;
+  const a = colors[i], b = colors[i + 1];
+  return [
+    Math.round(a[0] + (b[0] - a[0]) * f),
+    Math.round(a[1] + (b[1] - a[1]) * f),
+    Math.round(a[2] + (b[2] - a[2]) * f)
+  ];
+}
+
+function colorStr(rgb) {
+  return `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+}
+
+function buildPaletteSelector() {
+  let html = '<div class="panel-section"><div class="panel-title">Color Palette</div><div class="swatch-row">';
+  for (const name in palettes) {
+    const grad = [];
+    for (let i = 0; i <= 4; i++) grad.push(colorStr(palettes[name](i / 4)));
+    html += `<div class="color-swatch ${name === currentPalette ? 'active' : ''}" data-palette="${name}" style="background: linear-gradient(135deg, ${grad.join(',')});" title="${name}"></div>`;
+  }
+  html += '</div></div>';
+  return html;
+}
+
+function bindPaletteEvents() {
+  document.querySelectorAll('.color-swatch').forEach(s => {
+    s.addEventListener('click', () => {
+      currentPalette = s.dataset.palette;
+      document.querySelectorAll('.color-swatch').forEach(x => x.classList.remove('active'));
+      s.classList.add('active');
+      modes[currentMode].init?.();
+    });
+  });
+}
+
+// =====================================================================
+// MODE 1: STRANGE ATTRACTORS
+// =====================================================================
+
+const attractorDefs = {
+  lorenz: {
+    name: 'Lorenz',
+    params: { sigma: 10, rho: 28, beta: 2.667 },
+    ranges: { sigma: [0, 30], rho: [0, 60], beta: [0, 10] },
+    step: 0.005,
+    fn: (x, y, z, p) => [
+      p.sigma * (y - x),
+      x * (p.rho - z) - y,
+      x * y - p.beta * z
+    ],
+    init: () => [0.1, 0, 0],
+    scale: 12
+  },
+  rossler: {
+    name: 'Rossler',
+    params: { a: 0.2, b: 0.2, c: 5.7 },
+    ranges: { a: [0, 1], b: [0, 1], c: [0, 20] },
+    step: 0.01,
+    fn: (x, y, z, p) => [
+      -y - z,
+      x + p.a * y,
+      p.b + z * (x - p.c)
+    ],
+    init: () => [1, 1, 0],
+    scale: 8
+  },
+  chen: {
+    name: 'Chen',
+    params: { a: 40, b: 3, c: 28 },
+    ranges: { a: [20, 60], b: [0, 10], c: [10, 50] },
+    step: 0.002,
+    fn: (x, y, z, p) => [
+      p.a * (y - x),
+      (p.c - p.a) * x - x * z + p.c * y,
+      x * y - p.b * z
+    ],
+    init: () => [-0.1, 0.5, -0.6],
+    scale: 10
+  },
+  aizawa: {
+    name: 'Aizawa',
+    params: { a: 0.95, b: 0.7, c: 0.6, d: 3.5, e: 0.25, f: 0.1 },
+    ranges: { a: [0, 2], b: [0, 2], c: [0, 2], d: [0, 6], e: [0, 1], f: [0, 1] },
+    step: 0.005,
+    fn: (x, y, z, p) => [
+      (z - p.b) * x - p.d * y,
+      p.d * x + (z - p.b) * y,
+      p.c + p.a * z - (z * z * z) / 3 - (x * x + y * y) * (1 + p.e * z) + p.f * z * x * x * x
+    ],
+    init: () => [0.1, 0, 0],
+    scale: 2.5
+  },
+  thomas: {
+    name: 'Thomas',
+    params: { b: 0.208186 },
+    ranges: { b: [0, 0.5] },
+    step: 0.03,
+    fn: (x, y, z, p) => [
+      Math.sin(y) - p.b * x,
+      Math.sin(z) - p.b * y,
+      Math.sin(x) - p.b * z
+    ],
+    init: () => [1.1, 1.1, -0.01],
+    scale: 2.5
+  }
+};
+
+let attState = {
+  type: 'lorenz',
+  points: [],
+  maxPoints: 30000,
+  rotX: -0.5,
+  rotY: 0.4,
+  rotZ: 0,
+  zoom: 1,
+  dragging: false,
+  lastMouse: { x: 0, y: 0 },
+  speed: 20,
+  params: {}
+};
+
+function attractor_buildPanel() {
+  let html = '<div class="panel-section"><div class="panel-title">Attractor Type</div>';
+  html += '<select id="att-type">';
+  for (const key in attractorDefs) {
+    html += `<option value="${key}" ${key === attState.type ? 'selected' : ''}>${attractorDefs[key].name}</option>`;
+  }
+  html += '</select></div>';
+
+  const def = attractorDefs[attState.type];
+  html += '<div class="panel-section"><div class="panel-title">Parameters</div>';
+  for (const p in def.params) {
+    const v = attState.params[p] ?? def.params[p];
+    const r = def.ranges[p];
+    html += `<div class="control-row"><label>${p}</label><span class="val" id="att-val-${p}">${v.toFixed(3)}</span></div>`;
+    html += `<input type="range" id="att-${p}" min="${r[0]}" max="${r[1]}" step="${(r[1]-r[0])/1000}" value="${v}">`;
+  }
+  html += '</div>';
+
+  html += '<div class="panel-section"><div class="panel-title">Rendering</div>';
+  html += `<div class="control-row"><label>Trail Length</label><span class="val" id="att-val-trail">${attState.maxPoints}</span></div>`;
+  html += `<input type="range" id="att-trail" min="1000" max="80000" step="1000" value="${attState.maxPoints}">`;
+  html += `<div class="control-row"><label>Speed</label><span class="val" id="att-val-speed">${attState.speed}</span></div>`;
+  html += `<input type="range" id="att-speed" min="1" max="80" step="1" value="${attState.speed}">`;
+  html += '</div>';
+
+  html += buildPaletteSelector();
+
+  html += '<div class="panel-section"><div class="btn-row">';
+  html += '<button class="btn" id="att-reset">Reset</button>';
+  html += '<button class="btn" id="att-randomize">Randomize</button>';
+  html += '</div></div>';
+
+  html += '<div class="panel-section"><div class="info-text">Click and drag to rotate. Scroll to zoom.</div></div>';
+
+  panel.innerHTML = html;
+
+  // Bind events
+  document.getElementById('att-type').addEventListener('change', (e) => {
+    attState.type = e.target.value;
+    attState.params = { ...attractorDefs[attState.type].params };
+    attractor_init();
+    attractor_buildPanel();
+  });
+
+  const def2 = attractorDefs[attState.type];
+  for (const p in def2.params) {
+    const slider = document.getElementById(`att-${p}`);
+    slider.addEventListener('input', () => {
+      attState.params[p] = parseFloat(slider.value);
+      document.getElementById(`att-val-${p}`).textContent = parseFloat(slider.value).toFixed(3);
+      attractor_init();
+    });
+  }
+
+  document.getElementById('att-trail').addEventListener('input', function() {
+    attState.maxPoints = parseInt(this.value);
+    document.getElementById('att-val-trail').textContent = this.value;
+  });
+
+  document.getElementById('att-speed').addEventListener('input', function() {
+    attState.speed = parseInt(this.value);
+    document.getElementById('att-val-speed').textContent = this.value;
+  });
+
+  document.getElementById('att-reset').addEventListener('click', () => {
+    attState.params = { ...attractorDefs[attState.type].params };
+    attState.rotX = -0.5; attState.rotY = 0.4; attState.zoom = 1;
+    attractor_init();
+    attractor_buildPanel();
+  });
+
+  document.getElementById('att-randomize').addEventListener('click', () => {
+    const d = attractorDefs[attState.type];
+    for (const p in d.params) {
+      const r = d.ranges[p];
+      attState.params[p] = r[0] + Math.random() * (r[1] - r[0]);
+    }
+    attractor_init();
+    attractor_buildPanel();
+  });
+
+  bindPaletteEvents();
+}
+
+function attractor_init() {
+  const def = attractorDefs[attState.type];
+  if (!attState.params || Object.keys(attState.params).length === 0 || !attState.params.hasOwnProperty(Object.keys(def.params)[0])) {
+    attState.params = { ...def.params };
+  }
+  const p0 = def.init();
+  attState.points = [{ x: p0[0], y: p0[1], z: p0[2] }];
+
+  // Mouse handlers
+  canvas.onmousedown = (e) => {
+    attState.dragging = true;
+    attState.lastMouse = { x: e.clientX, y: e.clientY };
+  };
+  canvas.onmousemove = (e) => {
+    if (!attState.dragging) return;
+    const dx = e.clientX - attState.lastMouse.x;
+    const dy = e.clientY - attState.lastMouse.y;
+    attState.rotY += dx * 0.005;
+    attState.rotX += dy * 0.005;
+    attState.lastMouse = { x: e.clientX, y: e.clientY };
+  };
+  canvas.onmouseup = () => { attState.dragging = false; };
+  canvas.onwheel = (e) => {
+    e.preventDefault();
+    attState.zoom *= e.deltaY > 0 ? 0.95 : 1.05;
+    attState.zoom = Math.max(0.1, Math.min(10, attState.zoom));
+  };
+  canvas.onclick = null;
+}
+
+function project3D(x, y, z, rx, ry, rz, zoom, cx, cy) {
+  // Rotate Y
+  let x1 = x * Math.cos(ry) - z * Math.sin(ry);
+  let z1 = x * Math.sin(ry) + z * Math.cos(ry);
+  // Rotate X
+  let y1 = y * Math.cos(rx) - z1 * Math.sin(rx);
+  let z2 = y * Math.sin(rx) + z1 * Math.cos(rx);
+  // Perspective
+  const scale = Math.min(W, H) * 0.03 * zoom;
+  const persp = 800 / (800 + z2);
+  return {
+    x: cx + x1 * scale * persp,
+    y: cy + y1 * scale * persp,
+    z: z2,
+    persp
+  };
+}
+
+function attractor_draw() {
+  ctx.fillStyle = 'rgba(10, 10, 15, 0.15)';
+  ctx.fillRect(0, 0, W, H);
+
+  const def = attractorDefs[attState.type];
+  const pts = attState.points;
+  const last = pts[pts.length - 1];
+  const dt = def.step;
+
+  // Integrate new points
+  for (let i = 0; i < attState.speed; i++) {
+    const p = pts[pts.length - 1];
+    const d = def.fn(p.x, p.y, p.z, attState.params);
+    const nx = p.x + d[0] * dt;
+    const ny = p.y + d[1] * dt;
+    const nz = p.z + d[2] * dt;
+    if (!isFinite(nx) || !isFinite(ny) || !isFinite(nz)) {
+      // Diverged, reset
+      const p0 = def.init();
+      pts.length = 0;
+      pts.push({ x: p0[0], y: p0[1], z: p0[2] });
+      break;
+    }
+    pts.push({ x: nx, y: ny, z: nz });
+  }
+
+  while (pts.length > attState.maxPoints) pts.shift();
+
+  // Auto-rotate slowly
+  if (!attState.dragging) {
+    attState.rotY += 0.002;
+  }
+
+  const cx = W / 2, cy = H / 2;
+  const sc = def.scale;
+  const pal = palettes[currentPalette];
+
+  // Draw trail
+  ctx.lineWidth = 1.2;
+  const len = pts.length;
+  for (let i = 1; i < len; i++) {
+    const t = i / len;
+    const p0 = pts[i - 1];
+    const p1 = pts[i];
+    const a = project3D(p0.x / sc, p0.y / sc, p0.z / sc, attState.rotX, attState.rotY, attState.rotZ, attState.zoom, cx, cy);
+    const b = project3D(p1.x / sc, p1.y / sc, p1.z / sc, attState.rotX, attState.rotY, attState.rotZ, attState.zoom, cx, cy);
+
+    const rgb = pal(t);
+    const alpha = 0.1 + t * 0.9;
+    ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
+    ctx.beginPath();
+    ctx.moveTo(a.x, a.y);
+    ctx.lineTo(b.x, b.y);
+    ctx.stroke();
+  }
+
+  // Glow at head
+  if (pts.length > 0) {
+    const head = pts[pts.length - 1];
+    const hp = project3D(head.x / sc, head.y / sc, head.z / sc, attState.rotX, attState.rotY, attState.rotZ, attState.zoom, cx, cy);
+    const rgb = pal(1);
+    const grad = ctx.createRadialGradient(hp.x, hp.y, 0, hp.x, hp.y, 12);
+    grad.addColorStop(0, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.8)`);
+    grad.addColorStop(1, `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0)`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(hp.x - 12, hp.y - 12, 24, 24);
+  }
+
+  overlay.textContent = `${def.name} Attractor | ${pts.length} points`;
+}
+
+function attractor_cleanup() {
+  canvas.onmousedown = null;
+  canvas.onmousemove = null;
+  canvas.onmouseup = null;
+  canvas.onwheel = null;
+}
+
+// =====================================================================
+// MODE 2: BIFURCATION DIAGRAM
+// =====================================================================
+
+let bifState = {
+  rMin: 2.5, rMax: 4.0,
+  xMin: 0, xMax: 1,
+  imageData: null,
+  needsRedraw: true,
+  iterations: 1000,
+  skip: 200,
+  dragging: false,
+  dragStart: null,
+  dragEnd: null,
+  orbitR: null,
+  orbitPoints: null
+};
+
+function bif_buildPanel() {
+  let html = '<div class="panel-section"><div class="panel-title">Logistic Map</div>';
+  html += '<div class="info-text">x(n+1) = r * x(n) * (1 - x(n))</div></div>';
+
+  html += '<div class="panel-section"><div class="panel-title">View</div>';
+  html += `<div class="control-row"><label>r range</label><span class="val">${bifState.rMin.toFixed(3)} - ${bifState.rMax.toFixed(3)}</span></div>`;
+  html += `<div class="control-row"><label>x range</label><span class="val">${bifState.xMin.toFixed(3)} - ${bifState.xMax.toFixed(3)}</span></div>`;
+  html += '</div>';
+
+  html += '<div class="panel-section"><div class="panel-title">Quality</div>';
+  html += `<div class="control-row"><label>Iterations</label><span class="val" id="bif-val-iter">${bifState.iterations}</span></div>`;
+  html += `<input type="range" id="bif-iter" min="200" max="3000" step="100" value="${bifState.iterations}">`;
+  html += '</div>';
+
+  html += buildPaletteSelector();
+
+  html += '<div class="panel-section"><div class="btn-row">';
+  html += '<button class="btn" id="bif-reset">Reset View</button>';
+  html += '</div></div>';
+
+  html += '<div class="panel-section"><div class="info-text">Scroll to zoom. Click to see orbit. Drag to select zoom region.</div></div>';
+
+  panel.innerHTML = html;
+
+  document.getElementById('bif-iter').addEventListener('input', function() {
+    bifState.iterations = parseInt(this.value);
+    document.getElementById('bif-val-iter').textContent = this.value;
+    bifState.needsRedraw = true;
+  });
+
+  document.getElementById('bif-reset').addEventListener('click', () => {
+    bifState.rMin = 2.5; bifState.rMax = 4.0;
+    bifState.xMin = 0; bifState.xMax = 1;
+    bifState.orbitR = null; bifState.orbitPoints = null;
+    bifState.needsRedraw = true;
+    bif_buildPanel();
+  });
+
+  bindPaletteEvents();
+}
+
+function bif_init() {
+  bifState.needsRedraw = true;
+
+  canvas.onwheel = (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) / W;
+    const my = (e.clientY - rect.top) / H;
+    const rAtMouse = bifState.rMin + mx * (bifState.rMax - bifState.rMin);
+    const xAtMouse = bifState.xMax - my * (bifState.xMax - bifState.xMin);
+    const factor = e.deltaY > 0 ? 1.1 : 0.9;
+    const rRange = (bifState.rMax - bifState.rMin) * factor;
+    const xRange = (bifState.xMax - bifState.xMin) * factor;
+    bifState.rMin = rAtMouse - mx * rRange;
+    bifState.rMax = rAtMouse + (1 - mx) * rRange;
+    bifState.xMin = xAtMouse - (1 - my) * xRange;
+    bifState.xMax = xAtMouse + my * xRange;
+    bifState.needsRedraw = true;
+    bif_buildPanel();
+  };
+
+  canvas.onmousedown = (e) => {
+    const rect = canvas.getBoundingClientRect();
+    bifState.dragStart = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    bifState.dragging = true;
+  };
+
+  canvas.onmousemove = (e) => {
+    if (!bifState.dragging) return;
+    const rect = canvas.getBoundingClientRect();
+    bifState.dragEnd = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  };
+
+  canvas.onmouseup = (e) => {
+    if (!bifState.dragging) return;
+    bifState.dragging = false;
+    const rect = canvas.getBoundingClientRect();
+    const ex = e.clientX - rect.left;
+    const ey = e.clientY - rect.top;
+    if (bifState.dragStart && Math.abs(ex - bifState.dragStart.x) > 10 && Math.abs(ey - bifState.dragStart.y) > 10) {
+      // Zoom to selection
+      const x0 = Math.min(bifState.dragStart.x, ex) / W;
+      const x1 = Math.max(bifState.dragStart.x, ex) / W;
+      const y0 = Math.min(bifState.dragStart.y, ey) / H;
+      const y1 = Math.max(bifState.dragStart.y, ey) / H;
+      const newRMin = bifState.rMin + x0 * (bifState.rMax - bifState.rMin);
+      const newRMax = bifState.rMin + x1 * (bifState.rMax - bifState.rMin);
+      const newXMax = bifState.xMax - y0 * (bifState.xMax - bifState.xMin);
+      const newXMin = bifState.xMax - y1 * (bifState.xMax - bifState.xMin);
+      bifState.rMin = newRMin; bifState.rMax = newRMax;
+      bifState.xMin = newXMin; bifState.xMax = newXMax;
+      bifState.needsRedraw = true;
+      bif_buildPanel();
+    } else {
+      // Click: show orbit
+      const r = bifState.rMin + (ex / W) * (bifState.rMax - bifState.rMin);
+      bifState.orbitR = r;
+      bifState.orbitPoints = computeOrbit(r, 200, 100);
+    }
+    bifState.dragStart = null;
+    bifState.dragEnd = null;
+  };
+
+  canvas.onclick = null;
+}
+
+function computeOrbit(r, iterations, skip) {
+  let x = 0.5;
+  const pts = [];
+  for (let i = 0; i < skip; i++) x = r * x * (1 - x);
+  for (let i = 0; i < iterations; i++) {
+    x = r * x * (1 - x);
+    pts.push(x);
+  }
+  return pts;
+}
+
+function bif_renderDiagram() {
+  const imgData = ctx.createImageData(W * dpr, H * dpr);
+  const data = imgData.data;
+  const pal = palettes[currentPalette];
+  const density = new Float32Array(W * dpr * H * dpr);
+
+  const cols = W * dpr;
+  const rows = H * dpr;
+  let maxDens = 0;
+
+  for (let col = 0; col < cols; col++) {
+    const r = bifState.rMin + (col / cols) * (bifState.rMax - bifState.rMin);
+    let x = 0.5;
+    for (let i = 0; i < bifState.skip; i++) x = r * x * (1 - x);
+    for (let i = 0; i < bifState.iterations; i++) {
+      x = r * x * (1 - x);
+      const row = Math.floor((1 - (x - bifState.xMin) / (bifState.xMax - bifState.xMin)) * rows);
+      if (row >= 0 && row < rows) {
+        const idx = row * cols + col;
+        density[idx]++;
+        if (density[idx] > maxDens) maxDens = density[idx];
+      }
+    }
+  }
+
+  for (let i = 0; i < density.length; i++) {
+    if (density[i] > 0) {
+      const t = Math.pow(density[i] / maxDens, 0.3);
+      const rgb = pal(t);
+      const idx = i * 4;
+      data[idx] = rgb[0];
+      data[idx + 1] = rgb[1];
+      data[idx + 2] = rgb[2];
+      data[idx + 3] = 255;
+    } else {
+      const idx = i * 4;
+      data[idx] = 10; data[idx + 1] = 10; data[idx + 2] = 15; data[idx + 3] = 255;
+    }
+  }
+
+  bifState.imageData = imgData;
+}
+
+function bif_draw() {
+  if (bifState.needsRedraw) {
+    bifState.needsRedraw = false;
+    bif_renderDiagram();
+  }
+
+  if (bifState.imageData) {
+    ctx.putImageData(bifState.imageData, 0, 0);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // Draw orbit
+  if (bifState.orbitR !== null && bifState.orbitPoints) {
+    const rx = ((bifState.orbitR - bifState.rMin) / (bifState.rMax - bifState.rMin)) * W;
+    ctx.strokeStyle = 'rgba(255, 100, 100, 0.5)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(rx, 0);
+    ctx.lineTo(rx, H);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255, 100, 100, 0.8)';
+    bifState.orbitPoints.forEach(x => {
+      const py = (1 - (x - bifState.xMin) / (bifState.xMax - bifState.xMin)) * H;
+      ctx.beginPath();
+      ctx.arc(rx, py, 2, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    overlay.textContent = `r = ${bifState.orbitR.toFixed(6)} | ${bifState.orbitPoints.length} orbit points`;
+  } else {
+    overlay.textContent = `Bifurcation Diagram | r: [${bifState.rMin.toFixed(4)}, ${bifState.rMax.toFixed(4)}]`;
+  }
+
+  // Drag selection rectangle
+  if (bifState.dragging && bifState.dragStart && bifState.dragEnd) {
+    ctx.strokeStyle = 'rgba(108, 92, 231, 0.8)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeRect(
+      bifState.dragStart.x, bifState.dragStart.y,
+      bifState.dragEnd.x - bifState.dragStart.x,
+      bifState.dragEnd.y - bifState.dragStart.y
+    );
+    ctx.setLineDash([]);
+  }
+}
+
+function bif_cleanup() {
+  canvas.onwheel = null;
+  canvas.onmousedown = null;
+  canvas.onmousemove = null;
+  canvas.onmouseup = null;
+}
+
+// =====================================================================
+// MODE 3: MANDELBROT / JULIA
+// =====================================================================
+
+let mandState = {
+  centerR: -0.5, centerI: 0,
+  zoomLevel: 1.5,
+  maxIter: 200,
+  imageData: null,
+  needsRedraw: true,
+  showJulia: false,
+  juliaR: -0.7, juliaI: 0.27015,
+  dragging: false,
+  lastMouse: null,
+  worker: null
+};
+
+function mand_buildPanel() {
+  let html = '<div class="panel-section"><div class="panel-title">Fractal Explorer</div>';
+  html += '<select id="mand-mode"><option value="mandelbrot" ' + (!mandState.showJulia ? 'selected' : '') + '>Mandelbrot Set</option>';
+  html += '<option value="julia" ' + (mandState.showJulia ? 'selected' : '') + '>Julia Set</option></select></div>';
+
+  html += '<div class="panel-section"><div class="panel-title">Parameters</div>';
+  html += `<div class="control-row"><label>Max Iterations</label><span class="val" id="mand-val-iter">${mandState.maxIter}</span></div>`;
+  html += `<input type="range" id="mand-iter" min="50" max="2000" step="50" value="${mandState.maxIter}">`;
+
+  if (mandState.showJulia) {
+    html += `<div class="control-row"><label>Julia c (real)</label><span class="val" id="mand-val-jr">${mandState.juliaR.toFixed(4)}</span></div>`;
+    html += `<input type="range" id="mand-jr" min="-2" max="2" step="0.001" value="${mandState.juliaR}">`;
+    html += `<div class="control-row"><label>Julia c (imag)</label><span class="val" id="mand-val-ji">${mandState.juliaI.toFixed(4)}</span></div>`;
+    html += `<input type="range" id="mand-ji" min="-2" max="2" step="0.001" value="${mandState.juliaI}">`;
+  }
+  html += '</div>';
+
+  html += '<div class="panel-section"><div class="panel-title">View</div>';
+  html += `<div class="control-row"><label>Center</label><span class="val">${mandState.centerR.toFixed(6)}<br>${mandState.centerI.toFixed(6)}i</span></div>`;
+  html += `<div class="control-row"><label>Zoom</label><span class="val">${(1/mandState.zoomLevel).toExponential(2)}x</span></div>`;
+  html += '</div>';
+
+  html += buildPaletteSelector();
+
+  html += '<div class="panel-section"><div class="btn-row">';
+  html += '<button class="btn" id="mand-reset">Reset View</button>';
+  html += '</div></div>';
+
+  html += '<div class="panel-section"><div class="info-text">Scroll to zoom. Drag to pan. Click on Mandelbrot to see Julia set at that point.</div></div>';
+
+  panel.innerHTML = html;
+
+  document.getElementById('mand-mode').addEventListener('change', (e) => {
+    mandState.showJulia = e.target.value === 'julia';
+    mandState.needsRedraw = true;
+    if (!mandState.showJulia) {
+      mandState.centerR = -0.5; mandState.centerI = 0; mandState.zoomLevel = 1.5;
+    } else {
+      mandState.centerR = 0; mandState.centerI = 0; mandState.zoomLevel = 1.5;
+    }
+    mand_buildPanel();
+  });
+
+  document.getElementById('mand-iter').addEventListener('input', function() {
+    mandState.maxIter = parseInt(this.value);
+    document.getElementById('mand-val-iter').textContent = this.value;
+    mandState.needsRedraw = true;
+  });
+
+  if (mandState.showJulia) {
+    document.getElementById('mand-jr').addEventListener('input', function() {
+      mandState.juliaR = parseFloat(this.value);
+      document.getElementById('mand-val-jr').textContent = mandState.juliaR.toFixed(4);
+      mandState.needsRedraw = true;
+    });
+    document.getElementById('mand-ji').addEventListener('input', function() {
+      mandState.juliaI = parseFloat(this.value);
+      document.getElementById('mand-val-ji').textContent = mandState.juliaI.toFixed(4);
+      mandState.needsRedraw = true;
+    });
+  }
+
+  document.getElementById('mand-reset').addEventListener('click', () => {
+    mandState.centerR = mandState.showJulia ? 0 : -0.5;
+    mandState.centerI = 0;
+    mandState.zoomLevel = 1.5;
+    mandState.maxIter = 200;
+    mandState.needsRedraw = true;
+    mand_buildPanel();
+  });
+
+  bindPaletteEvents();
+}
+
+function mand_init() {
+  mandState.needsRedraw = true;
+
+  canvas.onwheel = (e) => {
+    e.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const mx = (e.clientX - rect.left) / W;
+    const my = (e.clientY - rect.top) / H;
+    const aspect = W / H;
+
+    const rAtMouse = mandState.centerR + (mx - 0.5) * mandState.zoomLevel * 2 * aspect;
+    const iAtMouse = mandState.centerI - (my - 0.5) * mandState.zoomLevel * 2;
+
+    const factor = e.deltaY > 0 ? 1.15 : 0.85;
+    mandState.zoomLevel *= factor;
+    mandState.zoomLevel = Math.max(1e-14, Math.min(10, mandState.zoomLevel));
+
+    mandState.centerR = rAtMouse - (mx - 0.5) * mandState.zoomLevel * 2 * aspect;
+    mandState.centerI = iAtMouse + (my - 0.5) * mandState.zoomLevel * 2;
+
+    mandState.needsRedraw = true;
+    mand_buildPanel();
+  };
+
+  canvas.onmousedown = (e) => {
+    mandState.dragging = true;
+    mandState.lastMouse = { x: e.clientX, y: e.clientY };
+  };
+
+  canvas.onmousemove = (e) => {
+    if (!mandState.dragging) return;
+    const dx = e.clientX - mandState.lastMouse.x;
+    const dy = e.clientY - mandState.lastMouse.y;
+    const aspect = W / H;
+    mandState.centerR -= (dx / W) * mandState.zoomLevel * 2 * aspect;
+    mandState.centerI += (dy / H) * mandState.zoomLevel * 2;
+    mandState.lastMouse = { x: e.clientX, y: e.clientY };
+    mandState.needsRedraw = true;
+  };
+
+  canvas.onmouseup = (e) => {
+    if (mandState.dragging && mandState.lastMouse &&
+        Math.abs(e.clientX - mandState.lastMouse.x) < 3 &&
+        Math.abs(e.clientY - mandState.lastMouse.y) < 3 &&
+        !mandState.showJulia) {
+      // Click on Mandelbrot -> switch to Julia
+      const rect = canvas.getBoundingClientRect();
+      const mx = (e.clientX - rect.left) / W;
+      const my = (e.clientY - rect.top) / H;
+      const aspect = W / H;
+      mandState.juliaR = mandState.centerR + (mx - 0.5) * mandState.zoomLevel * 2 * aspect;
+      mandState.juliaI = mandState.centerI - (my - 0.5) * mandState.zoomLevel * 2;
+      mandState.showJulia = true;
+      mandState.centerR = 0; mandState.centerI = 0; mandState.zoomLevel = 1.5;
+      mandState.needsRedraw = true;
+      mand_buildPanel();
+    }
+    mandState.dragging = false;
+  };
+}
+
+function mand_computePixel(cr, ci, maxIter) {
+  let zr = 0, zi = 0;
+  if (mandState.showJulia) {
+    zr = cr; zi = ci;
+    cr = mandState.juliaR; ci = mandState.juliaI;
+  }
+  let zr2 = zr * zr, zi2 = zi * zi;
+  let i;
+  for (i = 0; i < maxIter && zr2 + zi2 <= 4; i++) {
+    zi = 2 * zr * zi + ci;
+    zr = zr2 - zi2 + cr;
+    zr2 = zr * zr;
+    zi2 = zi * zi;
+  }
+  if (i === maxIter) return -1;
+  // Smooth coloring
+  const log2 = Math.log(2);
+  const nu = Math.log(Math.log(Math.sqrt(zr2 + zi2)) / log2) / log2;
+  return i + 1 - nu;
+}
+
+function mand_render() {
+  const aspect = W / H;
+  const rMin = mandState.centerR - mandState.zoomLevel * aspect;
+  const rMax = mandState.centerR + mandState.zoomLevel * aspect;
+  const iMin = mandState.centerI - mandState.zoomLevel;
+  const iMax = mandState.centerI + mandState.zoomLevel;
+
+  const pw = Math.ceil(W * dpr);
+  const ph = Math.ceil(H * dpr);
+  const imgData = ctx.createImageData(pw, ph);
+  const data = imgData.data;
+  const pal = palettes[currentPalette];
+  const maxIter = mandState.maxIter;
+
+  // Render in blocks for responsiveness
+  for (let py = 0; py < ph; py++) {
+    const ci = iMin + (py / ph) * (iMax - iMin);
+    for (let px = 0; px < pw; px++) {
+      const cr = rMin + (px / pw) * (rMax - rMin);
+      const result = mand_computePixel(cr, ci, maxIter);
+      const idx = (py * pw + px) * 4;
+      if (result < 0) {
+        data[idx] = 0; data[idx + 1] = 0; data[idx + 2] = 0; data[idx + 3] = 255;
+      } else {
+        const t = (result % 50) / 50;
+        const rgb = pal(t);
+        data[idx] = rgb[0]; data[idx + 1] = rgb[1]; data[idx + 2] = rgb[2]; data[idx + 3] = 255;
+      }
+    }
+  }
+
+  mandState.imageData = imgData;
+}
+
+function mand_draw() {
+  if (mandState.needsRedraw) {
+    mandState.needsRedraw = false;
+    mand_render();
+  }
+
+  if (mandState.imageData) {
+    ctx.putImageData(mandState.imageData, 0, 0);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  const label = mandState.showJulia
+    ? `Julia Set | c = ${mandState.juliaR.toFixed(6)} + ${mandState.juliaI.toFixed(6)}i`
+    : `Mandelbrot Set`;
+  overlay.textContent = `${label} | Zoom: ${(1/mandState.zoomLevel).toExponential(2)}x | Iter: ${mandState.maxIter}`;
+}
+
+function mand_cleanup() {
+  canvas.onwheel = null;
+  canvas.onmousedown = null;
+  canvas.onmousemove = null;
+  canvas.onmouseup = null;
+}
+
+// =====================================================================
+// MODE 4: CELLULAR AUTOMATA
+// =====================================================================
+
+let caState = {
+  rule: 30,
+  rows: [],
+  width: 0,
+  rowHeight: 2,
+  speed: 1,
+  highlighted: [30, 90, 110, 184],
+  generation: 0
+};
+
+function ca_buildPanel() {
+  let html = '<div class="panel-section"><div class="panel-title">Elementary CA</div>';
+  html += '<select id="ca-rule">';
+  const interesting = [30, 45, 54, 60, 73, 90, 105, 110, 150, 184, 225];
+  html += '<optgroup label="Interesting Rules">';
+  interesting.forEach(r => {
+    html += `<option value="${r}" ${r === caState.rule ? 'selected' : ''}>Rule ${r}${caState.highlighted.includes(r) ? ' *' : ''}</option>`;
+  });
+  html += '</optgroup><optgroup label="All Rules">';
+  for (let i = 0; i < 256; i++) {
+    if (!interesting.includes(i)) {
+      html += `<option value="${i}" ${i === caState.rule ? 'selected' : ''}>Rule ${i}</option>`;
+    }
+  }
+  html += '</optgroup></select></div>';
+
+  html += '<div class="panel-section"><div class="panel-title">Display</div>';
+  html += `<div class="control-row"><label>Cell Size</label><span class="val" id="ca-val-size">${caState.rowHeight}</span></div>`;
+  html += `<input type="range" id="ca-size" min="1" max="6" step="1" value="${caState.rowHeight}">`;
+  html += `<div class="control-row"><label>Speed</label><span class="val" id="ca-val-speed">${caState.speed}</span></div>`;
+  html += `<input type="range" id="ca-speed" min="1" max="20" step="1" value="${caState.speed}">`;
+  html += '</div>';
+
+  html += buildPaletteSelector();
+
+  html += '<div class="panel-section"><div class="panel-title">Rule Visualization</div>';
+  html += '<canvas id="ca-rule-canvas" width="240" height="40" style="background: var(--surface2); border-radius: 4px;"></canvas></div>';
+
+  html += '<div class="panel-section"><div class="btn-row">';
+  html += '<button class="btn" id="ca-reset">Reset</button>';
+  html += '<button class="btn" id="ca-random">Random Rule</button>';
+  html += '</div></div>';
+
+  html += `<div class="panel-section"><div class="info-text">Generation: <span id="ca-gen">${caState.generation}</span></div></div>`;
+
+  panel.innerHTML = html;
+
+  document.getElementById('ca-rule').addEventListener('change', function() {
+    caState.rule = parseInt(this.value);
+    ca_init();
+    ca_drawRulePreview();
+  });
+
+  document.getElementById('ca-size').addEventListener('input', function() {
+    caState.rowHeight = parseInt(this.value);
+    document.getElementById('ca-val-size').textContent = this.value;
+    ca_init();
+  });
+
+  document.getElementById('ca-speed').addEventListener('input', function() {
+    caState.speed = parseInt(this.value);
+    document.getElementById('ca-val-speed').textContent = this.value;
+  });
+
+  document.getElementById('ca-reset').addEventListener('click', () => ca_init());
+  document.getElementById('ca-random').addEventListener('click', () => {
+    caState.rule = Math.floor(Math.random() * 256);
+    ca_init();
+    ca_buildPanel();
+  });
+
+  bindPaletteEvents();
+  setTimeout(ca_drawRulePreview, 50);
+}
+
+function ca_drawRulePreview() {
+  const c = document.getElementById('ca-rule-canvas');
+  if (!c) return;
+  const cx = c.getContext('2d');
+  cx.fillStyle = '#1a1a26';
+  cx.fillRect(0, 0, 240, 40);
+
+  const rule = caState.rule;
+  for (let i = 0; i < 8; i++) {
+    const pattern = 7 - i;
+    const result = (rule >> pattern) & 1;
+    const xoff = i * 30 + 3;
+
+    // Draw parent cells
+    for (let b = 2; b >= 0; b--) {
+      const on = (pattern >> b) & 1;
+      cx.fillStyle = on ? '#6c5ce7' : '#2a2a3a';
+      cx.fillRect(xoff + (2 - b) * 9, 2, 8, 8);
+    }
+    // Draw result
+    cx.fillStyle = result ? '#00cec9' : '#2a2a3a';
+    cx.fillRect(xoff + 9, 16, 8, 8);
+  }
+}
+
+function ca_init() {
+  caState.width = Math.floor(W / caState.rowHeight);
+  const firstRow = new Uint8Array(caState.width);
+  firstRow[Math.floor(caState.width / 2)] = 1;
+  caState.rows = [firstRow];
+  caState.generation = 0;
+
+  canvas.onwheel = null;
+  canvas.onmousedown = null;
+  canvas.onmousemove = null;
+  canvas.onmouseup = null;
+  canvas.onclick = null;
+
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, W, H);
+}
+
+function ca_step(prevRow) {
+  const w = prevRow.length;
+  const next = new Uint8Array(w);
+  const rule = caState.rule;
+  for (let i = 0; i < w; i++) {
+    const left = prevRow[(i - 1 + w) % w];
+    const center = prevRow[i];
+    const right = prevRow[(i + 1) % w];
+    const pattern = (left << 2) | (center << 1) | right;
+    next[i] = (rule >> pattern) & 1;
+  }
+  return next;
+}
+
+function ca_draw() {
+  const maxRows = Math.floor(H / caState.rowHeight);
+  const pal = palettes[currentPalette];
+
+  for (let s = 0; s < caState.speed; s++) {
+    if (caState.rows.length < maxRows + 10) {
+      const last = caState.rows[caState.rows.length - 1];
+      caState.rows.push(ca_step(last));
+      caState.generation++;
+    } else {
+      // Scroll up
+      caState.rows.shift();
+      const last = caState.rows[caState.rows.length - 1];
+      caState.rows.push(ca_step(last));
+      caState.generation++;
+    }
+  }
+
+  // Render
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, W, H);
+
+  const sz = caState.rowHeight;
+  const rowCount = Math.min(caState.rows.length, maxRows);
+  const startRow = Math.max(0, caState.rows.length - maxRows);
+
+  for (let r = 0; r < rowCount; r++) {
+    const row = caState.rows[startRow + r];
+    const y = r * sz;
+    for (let c = 0; c < row.length; c++) {
+      if (row[c]) {
+        const t = r / maxRows;
+        const rgb = pal(t);
+        ctx.fillStyle = colorStr(rgb);
+        ctx.fillRect(c * sz, y, sz, sz);
+      }
+    }
+  }
+
+  const genEl = document.getElementById('ca-gen');
+  if (genEl) genEl.textContent = caState.generation;
+  overlay.textContent = `Rule ${caState.rule} | Gen ${caState.generation} | Width ${caState.width}`;
+}
+
+function ca_cleanup() {}
+
+// =====================================================================
+// MODE 5: DOUBLE PENDULUM
+// =====================================================================
+
+let pendState = {
+  pendulums: [],
+  count: 5,
+  L1: 150, L2: 150,
+  m1: 10, m2: 10,
+  g: 1,
+  damping: 0.999,
+  trails: [],
+  maxTrail: 2000,
+  showTrail: true,
+  paused: false,
+  stepsPerFrame: 10
+};
+
+function pend_buildPanel() {
+  let html = '<div class="panel-section"><div class="panel-title">Double Pendulum</div>';
+  html += `<div class="control-row"><label>Count</label><span class="val" id="pend-val-count">${pendState.count}</span></div>`;
+  html += `<input type="range" id="pend-count" min="1" max="20" step="1" value="${pendState.count}">`;
+  html += '</div>';
+
+  html += '<div class="panel-section"><div class="panel-title">Physics</div>';
+  html += `<div class="control-row"><label>Length 1</label><span class="val" id="pend-val-L1">${pendState.L1}</span></div>`;
+  html += `<input type="range" id="pend-L1" min="50" max="250" step="5" value="${pendState.L1}">`;
+  html += `<div class="control-row"><label>Length 2</label><span class="val" id="pend-val-L2">${pendState.L2}</span></div>`;
+  html += `<input type="range" id="pend-L2" min="50" max="250" step="5" value="${pendState.L2}">`;
+  html += `<div class="control-row"><label>Mass 1</label><span class="val" id="pend-val-m1">${pendState.m1}</span></div>`;
+  html += `<input type="range" id="pend-m1" min="1" max="30" step="1" value="${pendState.m1}">`;
+  html += `<div class="control-row"><label>Mass 2</label><span class="val" id="pend-val-m2">${pendState.m2}</span></div>`;
+  html += `<input type="range" id="pend-m2" min="1" max="30" step="1" value="${pendState.m2}">`;
+  html += `<div class="control-row"><label>Gravity</label><span class="val" id="pend-val-g">${pendState.g.toFixed(2)}</span></div>`;
+  html += `<input type="range" id="pend-g" min="0.1" max="3" step="0.05" value="${pendState.g}">`;
+  html += `<div class="control-row"><label>Damping</label><span class="val" id="pend-val-damp">${pendState.damping.toFixed(4)}</span></div>`;
+  html += `<input type="range" id="pend-damp" min="0.99" max="1" step="0.0001" value="${pendState.damping}">`;
+  html += '</div>';
+
+  html += '<div class="panel-section"><div class="panel-title">Display</div>';
+  html += `<div class="control-row"><label>Trail Length</label><span class="val" id="pend-val-trail">${pendState.maxTrail}</span></div>`;
+  html += `<input type="range" id="pend-trail" min="100" max="5000" step="100" value="${pendState.maxTrail}">`;
+  html += '</div>';
+
+  html += buildPaletteSelector();
+
+  html += '<div class="panel-section"><div class="btn-row">';
+  html += '<button class="btn" id="pend-reset">Reset</button>';
+  html += '<button class="btn" id="pend-pause">' + (pendState.paused ? 'Resume' : 'Pause') + '</button>';
+  html += '</div></div>';
+
+  html += '<div class="panel-section"><div class="info-text">Each pendulum starts with a slightly different angle to demonstrate sensitivity to initial conditions.</div></div>';
+
+  panel.innerHTML = html;
+
+  const controls = ['count', 'L1', 'L2', 'm1', 'm2', 'g', 'damp', 'trail'];
+  const keys = ['count', 'L1', 'L2', 'm1', 'm2', 'g', 'damping', 'maxTrail'];
+  const isFloat = [false, false, false, false, false, true, true, false];
+
+  controls.forEach((c, i) => {
+    const el = document.getElementById(`pend-${c}`);
+    if (!el) return;
+    el.addEventListener('input', function() {
+      const v = isFloat[i] ? parseFloat(this.value) : parseInt(this.value);
+      pendState[keys[i]] = v;
+      const valEl = document.getElementById(`pend-val-${c}`);
+      if (valEl) valEl.textContent = isFloat[i] ? v.toFixed(keys[i] === 'damping' ? 4 : 2) : v;
+      if (c === 'count') pend_init();
+    });
+  });
+
+  document.getElementById('pend-reset').addEventListener('click', () => pend_init());
+  document.getElementById('pend-pause').addEventListener('click', function() {
+    pendState.paused = !pendState.paused;
+    this.textContent = pendState.paused ? 'Resume' : 'Pause';
+  });
+
+  bindPaletteEvents();
+}
+
+function pend_init() {
+  pendState.pendulums = [];
+  pendState.trails = [];
+
+  const baseAngle1 = Math.PI * 0.75;
+  const baseAngle2 = Math.PI * 0.75;
+
+  for (let i = 0; i < pendState.count; i++) {
+    const offset = (i - Math.floor(pendState.count / 2)) * 0.001;
+    pendState.pendulums.push({
+      a1: baseAngle1 + offset,
+      a2: baseAngle2,
+      v1: 0,
+      v2: 0
+    });
+    pendState.trails.push([]);
+  }
+
+  canvas.onwheel = null;
+  canvas.onmousedown = null;
+  canvas.onmousemove = null;
+  canvas.onmouseup = null;
+  canvas.onclick = null;
+}
+
+function pend_step(p) {
+  const { L1, L2, m1, m2, g, damping } = pendState;
+  const { a1, a2, v1, v2 } = p;
+  const dt = 0.1;
+
+  const da = a1 - a2;
+  const M = m1 + m2;
+
+  const den1 = M * L1 - m2 * L1 * Math.cos(da) * Math.cos(da);
+  const acc1 = (m2 * L1 * v1 * v1 * Math.sin(da) * Math.cos(da)
+    + m2 * g * Math.sin(a2) * Math.cos(da)
+    + m2 * L2 * v2 * v2 * Math.sin(da)
+    - M * g * Math.sin(a1)) / den1;
+
+  const den2 = (L2 / L1) * den1;
+  const acc2 = (-m2 * L2 * v2 * v2 * Math.sin(da) * Math.cos(da)
+    + M * g * Math.sin(a1) * Math.cos(da)
+    - M * L1 * v1 * v1 * Math.sin(da)
+    - M * g * Math.sin(a2)) / den2;
+
+  p.v1 = (p.v1 + acc1 * dt) * damping;
+  p.v2 = (p.v2 + acc2 * dt) * damping;
+  p.a1 += p.v1 * dt;
+  p.a2 += p.v2 * dt;
+}
+
+function pend_draw() {
+  ctx.fillStyle = 'rgba(10, 10, 15, 0.3)';
+  ctx.fillRect(0, 0, W, H);
+
+  if (!pendState.paused) {
+    for (let s = 0; s < pendState.stepsPerFrame; s++) {
+      pendState.pendulums.forEach((p, i) => {
+        pend_step(p);
+        const { L1, L2 } = pendState;
+        const x2 = Math.sin(p.a1) * L1 + Math.sin(p.a2) * L2;
+        const y2 = Math.cos(p.a1) * L1 + Math.cos(p.a2) * L2;
+        pendState.trails[i].push({ x: x2, y: y2 });
+        if (pendState.trails[i].length > pendState.maxTrail) {
+          pendState.trails[i].shift();
+        }
+      });
+    }
+  }
+
+  const ox = W / 2, oy = H * 0.3;
+  const pal = palettes[currentPalette];
+
+  // Draw trails
+  pendState.trails.forEach((trail, pi) => {
+    if (trail.length < 2) return;
+    const hue = pi / pendState.count;
+    const rgb = pal(hue);
+
+    ctx.lineWidth = 1;
+    for (let i = 1; i < trail.length; i++) {
+      const alpha = (i / trail.length) * 0.6;
+      ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})`;
+      ctx.beginPath();
+      ctx.moveTo(ox + trail[i - 1].x, oy + trail[i - 1].y);
+      ctx.lineTo(ox + trail[i].x, oy + trail[i].y);
+      ctx.stroke();
+    }
+  });
+
+  // Draw pendulums
+  pendState.pendulums.forEach((p, i) => {
+    const { L1, L2 } = pendState;
+    const x1 = ox + Math.sin(p.a1) * L1;
+    const y1 = oy + Math.cos(p.a1) * L1;
+    const x2 = x1 + Math.sin(p.a2) * L2;
+    const y2 = y1 + Math.cos(p.a2) * L2;
+
+    const hue = i / pendState.count;
+    const rgb = pal(hue);
+    const col = colorStr(rgb);
+
+    // Rods
+    ctx.strokeStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},0.6)`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(ox, oy);
+    ctx.lineTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+
+    // Bobs
+    ctx.fillStyle = col;
+    ctx.beginPath();
+    ctx.arc(x1, y1, Math.sqrt(pendState.m1) * 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(x2, y2, Math.sqrt(pendState.m2) * 2, 0, Math.PI * 2);
+    ctx.fill();
+  });
+
+  // Pivot
+  ctx.fillStyle = '#444';
+  ctx.beginPath();
+  ctx.arc(ox, oy, 4, 0, Math.PI * 2);
+  ctx.fill();
+
+  overlay.textContent = `Double Pendulum | ${pendState.count} instances | Sensitivity to initial conditions`;
+}
+
+function pend_cleanup() {}
+
+// =====================================================================
+// MODE REGISTRY
+// =====================================================================
+
+const modes = {
+  attractors: {
+    buildPanel: attractor_buildPanel,
+    init: attractor_init,
+    draw: attractor_draw,
+    cleanup: attractor_cleanup
+  },
+  bifurcation: {
+    buildPanel: bif_buildPanel,
+    init: bif_init,
+    draw: bif_draw,
+    cleanup: bif_cleanup
+  },
+  mandelbrot: {
+    buildPanel: mand_buildPanel,
+    init: mand_init,
+    draw: mand_draw,
+    cleanup: mand_cleanup
+  },
+  cellular: {
+    buildPanel: ca_buildPanel,
+    init: ca_init,
+    draw: ca_draw,
+    cleanup: ca_cleanup
+  },
+  pendulum: {
+    buildPanel: pend_buildPanel,
+    init: pend_init,
+    draw: pend_draw,
+    cleanup: pend_cleanup
+  }
+};
+
+// =====================================================================
+// STARTUP
+// =====================================================================
+
+attState.params = { ...attractorDefs[attState.type].params };
+switchMode('attractors');
+
+</script>
+</body>
+</html>
