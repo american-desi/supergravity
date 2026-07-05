@@ -2,7 +2,7 @@
 // AUTO-GENERATED — do not edit by hand.
 // Run: npm run enrich
 // Sources: Wikipedia REST API + Wikimedia Commons (CC BY-SA) + OpenAI evaluation
-// Last updated: 2026-06-28T06:51:55.234Z
+// Last updated: 2026-07-05T06:28:03.772Z
 // Topics enriched: 284 / 304
 
 (function () {
