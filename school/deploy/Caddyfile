@@ -1,0 +1,35 @@
+# Caddy config for Supergravity School on a single VPS.
+# Replace school.example.com with your domain; Caddy handles TLS automatically.
+
+school.example.com {
+	encode zstd gzip
+
+	# API: proxy to the Go server on localhost.
+	handle /api/* {
+		reverse_proxy 127.0.0.1:8080 {
+			# Tutor streaming: don't buffer responses.
+			flush_interval -1
+		}
+	}
+
+	# Frontend: static Solid build.
+	handle {
+		root * /srv/school/web
+		try_files {path} /index.html
+		file_server
+	}
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy same-origin
+		# App shell CSP. Activities are served by the API with their own
+		# stricter no-network policy inside a sandboxed iframe.
+		Content-Security-Policy "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; frame-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'self'"
+		Strict-Transport-Security "max-age=31536000"
+	}
+
+	log {
+		output file /var/log/caddy/school-access.log
+		format json
+	}
+}

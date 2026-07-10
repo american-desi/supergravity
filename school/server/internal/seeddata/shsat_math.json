@@ -1,0 +1,135 @@
+{
+  "document": {
+    "title": "SHSAT Mathematics / NYS Algebra I Foundations",
+    "source": "Curated from NYS Next Generation Mathematics Learning Standards and the NYC SHSAT mathematics specification",
+    "jurisdiction": "NY"
+  },
+  "standards": [
+    {
+      "code": "SH-ARITH.1",
+      "domain": "Number Sense & Operations",
+      "title": "Operations with signed numbers and order of operations",
+      "description": "Fluently add, subtract, multiply, and divide rational numbers including negatives; apply order of operations with nested grouping symbols and exponents."
+    },
+    {
+      "code": "SH-ARITH.2",
+      "domain": "Number Sense & Operations",
+      "title": "Fractions, decimals, and percents",
+      "description": "Convert flexibly among fractions, decimals, and percents; compute percent increase, decrease, and percent-of-a-percent; solve reverse percent problems (finding the original amount)."
+    },
+    {
+      "code": "SH-RATIO.1",
+      "domain": "Ratios & Proportions",
+      "title": "Ratios, rates, and proportional reasoning",
+      "description": "Set up and solve problems using ratios, unit rates, and proportions, including scale, mixture, and part-to-part versus part-to-whole distinctions."
+    },
+    {
+      "code": "SH-RATIO.2",
+      "domain": "Ratios & Proportions",
+      "title": "Rate-time-distance and work problems",
+      "description": "Solve constant-rate problems relating distance, rate, and time, including combined and opposing rates and shared-work scenarios."
+    },
+    {
+      "code": "AI-A.SSE.1",
+      "domain": "Algebra: Structure",
+      "title": "Interpret and manipulate algebraic expressions",
+      "description": "Interpret parts of an expression (terms, factors, coefficients); combine like terms; apply the distributive property including distributing a negative across parentheses."
+    },
+    {
+      "code": "AI-A.SSE.3",
+      "domain": "Algebra: Structure",
+      "title": "Factoring and expanding quadratic expressions",
+      "description": "Expand binomial products; factor quadratics with leading coefficient 1 and simple cases with leading coefficient greater than 1; recognize difference of squares and perfect-square trinomials."
+    },
+    {
+      "code": "AI-A.CED.1",
+      "domain": "Algebra: Equations",
+      "title": "Create equations from verbal descriptions",
+      "description": "Translate verbal statements and word problems into one-variable equations and inequalities, defining variables precisely and checking solutions against the original story."
+    },
+    {
+      "code": "AI-A.REI.3",
+      "domain": "Algebra: Equations",
+      "title": "Solve linear equations and inequalities in one variable",
+      "description": "Solve multi-step linear equations and inequalities, including variables on both sides, fractional coefficients, and the sign flip when multiplying or dividing an inequality by a negative."
+    },
+    {
+      "code": "AI-A.REI.4",
+      "domain": "Algebra: Equations",
+      "title": "Solve quadratic equations",
+      "description": "Solve quadratics by factoring, square roots, and the quadratic formula; recognize that a product equal to zero requires a factor equal to zero; account for both square roots."
+    },
+    {
+      "code": "AI-A.REI.6",
+      "domain": "Algebra: Equations",
+      "title": "Solve systems of two linear equations",
+      "description": "Solve two-variable linear systems by substitution and elimination; interpret no-solution and infinitely-many-solution cases; translate word problems into systems."
+    },
+    {
+      "code": "AI-F.IF.4",
+      "domain": "Functions",
+      "title": "Interpret linear functions, slope, and intercepts",
+      "description": "Compute and interpret slope as a rate of change; find and interpret intercepts; write linear equations from two points, a point and a slope, or a table or graph."
+    },
+    {
+      "code": "SH-GEOM.1",
+      "domain": "Geometry",
+      "title": "Angles, triangles, and polygon relationships",
+      "description": "Apply angle relationships (vertical, supplementary, parallel lines with transversals), triangle angle sum, exterior angles, and interior angle sums of polygons."
+    },
+    {
+      "code": "SH-GEOM.2",
+      "domain": "Geometry",
+      "title": "Perimeter, area, and volume",
+      "description": "Compute perimeter and area of triangles, quadrilaterals, circles, and composite figures, and volume and surface area of prisms and cylinders; keep units and squared/cubed distinctions straight."
+    },
+    {
+      "code": "SH-GEOM.3",
+      "domain": "Geometry",
+      "title": "Coordinate geometry and the Pythagorean theorem",
+      "description": "Use the Pythagorean theorem, distance and midpoint on the coordinate plane, and slopes of parallel and perpendicular lines."
+    },
+    {
+      "code": "SH-STAT.1",
+      "domain": "Statistics & Probability",
+      "title": "Averages, weighted averages, and central tendency",
+      "description": "Compute and reason about mean, median, mode, and range, including weighted averages, changing an average by adding or removing a value, and average speed as total distance over total time."
+    },
+    {
+      "code": "SH-STAT.2",
+      "domain": "Statistics & Probability",
+      "title": "Counting and probability",
+      "description": "Solve counting problems using the multiplication principle and simple permutations and combinations; compute probabilities of single and compound independent events."
+    }
+  ],
+  "misconceptions": [
+    { "code": "MC-NEG-DIST", "title": "Fails to distribute a negative", "standard_hint": "AI-A.SSE.1", "description": "Distributes only to the first term inside parentheses when subtracting a group, e.g. 5 - (x + 3) becomes 5 - x + 3." },
+    { "code": "MC-NEG-SIGNRULES", "title": "Sign errors multiplying/dividing negatives", "standard_hint": "SH-ARITH.1", "description": "Believes a negative times a negative is negative, or loses track of signs across several multiplications." },
+    { "code": "MC-ORDER-OPS", "title": "Left-to-right order of operations", "standard_hint": "SH-ARITH.1", "description": "Evaluates strictly left to right, e.g. 3 + 4 × 2 = 14, ignoring multiplication precedence." },
+    { "code": "MC-EXP-MULT", "title": "Exponent means multiply by the exponent", "standard_hint": "SH-ARITH.1", "description": "Computes x^2 as 2x, or 3^4 as 12." },
+    { "code": "MC-FRAC-ADDACROSS", "title": "Adds fractions across numerators and denominators", "standard_hint": "SH-ARITH.2", "description": "Computes 1/2 + 1/3 as 2/5 by adding tops and bottoms separately." },
+    { "code": "MC-FRAC-DIVIDE", "title": "Inverts the wrong fraction when dividing", "standard_hint": "SH-ARITH.2", "description": "For a ÷ b/c, flips a instead of b/c, or multiplies without flipping at all." },
+    { "code": "MC-PCT-BASE", "title": "Uses the wrong base for percent change", "standard_hint": "SH-ARITH.2", "description": "Computes percent change against the new value instead of the original, or applies a discount-then-tax to the wrong base." },
+    { "code": "MC-PCT-ADDITIVE", "title": "Treats successive percents as additive", "standard_hint": "SH-ARITH.2", "description": "Believes a 20% increase followed by a 20% decrease returns to the original, or that 10% + 10% increases equal one 20% increase." },
+    { "code": "MC-RATIO-PARTWHOLE", "title": "Confuses part-to-part with part-to-whole", "standard_hint": "SH-RATIO.1", "description": "Given a ratio of boys to girls 2:3, treats 2/3 as the fraction of the class that is boys instead of 2/5." },
+    { "code": "MC-PROP-ADDITIVE", "title": "Uses additive instead of multiplicative scaling", "standard_hint": "SH-RATIO.1", "description": "Scales a recipe or similar figure by adding the same amount to each quantity rather than multiplying by the ratio." },
+    { "code": "MC-RTD-AVGSPEED", "title": "Averages the two speeds", "standard_hint": "SH-RATIO.2", "description": "For a round trip at different speeds, averages the speeds arithmetically instead of using total distance over total time." },
+    { "code": "MC-LIKETERMS", "title": "Combines unlike terms", "standard_hint": "AI-A.SSE.1", "description": "Adds terms with different variables or powers, e.g. 3x + 2x² = 5x³ or 2x + 3 = 5x." },
+    { "code": "MC-FOIL-MIDDLE", "title": "Drops the middle term when squaring a binomial", "standard_hint": "AI-A.SSE.3", "description": "Expands (x + a)² as x² + a², losing the 2ax middle term." },
+    { "code": "MC-FACTOR-SIGNS", "title": "Wrong signs when factoring", "standard_hint": "AI-A.SSE.3", "description": "Chooses factor-pair signs that give the right product but wrong sum, e.g. factoring x² - x - 6 as (x - 2)(x + 3)." },
+    { "code": "MC-EQ-ONESIDE", "title": "Operates on one side of an equation", "standard_hint": "AI-A.REI.3", "description": "Adds or divides on one side only, breaking equality while 'moving' terms." },
+    { "code": "MC-EQ-MOVESIGN", "title": "Moves a term without changing its sign", "standard_hint": "AI-A.REI.3", "description": "Transposes terms across the equals sign keeping the same sign, e.g. x + 5 = 12 becomes x = 12 + 5." },
+    { "code": "MC-INEQ-FLIP", "title": "Doesn't flip the inequality with negatives", "standard_hint": "AI-A.REI.3", "description": "Divides both sides of an inequality by a negative number without reversing the inequality symbol." },
+    { "code": "MC-QUAD-LINEAR", "title": "Solves a quadratic like a linear equation", "standard_hint": "AI-A.REI.4", "description": "Given x² = 25 answers only x = 5, missing the negative root; or moves x² terms as if linear." },
+    { "code": "MC-ZERO-PRODUCT", "title": "Misapplies the zero-product property", "standard_hint": "AI-A.REI.4", "description": "Sets factors equal to the constant instead of zero, e.g. from (x-2)(x-3) = 6 concludes x = 8 or x = 9... or x-2 = 6." },
+    { "code": "MC-SYS-SUBST", "title": "Substitutes into the same equation", "standard_hint": "AI-A.REI.6", "description": "Solves one equation for a variable and substitutes back into that same equation, producing 0 = 0 and confusion." },
+    { "code": "MC-SLOPE-RUNRISE", "title": "Inverts slope as run over rise", "standard_hint": "AI-F.IF.4", "description": "Computes slope as change in x over change in y, or mixes coordinate order between the two points." },
+    { "code": "MC-VAR-LABEL", "title": "Variable as label instead of quantity", "standard_hint": "AI-A.CED.1", "description": "Writes equations like 3s = d for 'three students per desk' reversing the relationship (the classic students-and-professors error)." },
+    { "code": "MC-ANGLE-SUPP", "title": "Confuses supplementary and complementary", "standard_hint": "SH-GEOM.1", "description": "Uses 90° where 180° is required (or vice versa) for angle pair relationships." },
+    { "code": "MC-AREA-PERIM", "title": "Conflates area and perimeter", "standard_hint": "SH-GEOM.2", "description": "Adds side lengths when area is asked, multiplies when perimeter is asked, or forgets squared units." },
+    { "code": "MC-PYTH-HYP", "title": "Misplaces the hypotenuse in the Pythagorean theorem", "standard_hint": "SH-GEOM.3", "description": "Writes a² + c² = b² with the hypotenuse as a leg, or adds legs directly without squaring." },
+    { "code": "MC-AVG-UNWEIGHTED", "title": "Averages averages without weighting", "standard_hint": "SH-STAT.1", "description": "Combines group averages by taking their simple mean, ignoring different group sizes." },
+    { "code": "MC-PROB-ADDIND", "title": "Adds probabilities of independent events", "standard_hint": "SH-STAT.2", "description": "Computes the probability of two independent events both happening by adding instead of multiplying." },
+    { "code": "MC-COUNT-OVER", "title": "Overcounts ordered arrangements", "standard_hint": "SH-STAT.2", "description": "Uses permutations where order doesn't matter, double-counting selections (or the reverse)." }
+  ]
+}

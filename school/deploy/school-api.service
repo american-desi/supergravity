@@ -1,0 +1,32 @@
+# systemd unit for the Supergravity School API.
+# Install: sudo cp school-api.service /etc/systemd/system/ && sudo systemctl enable --now school-api
+
+[Unit]
+Description=Supergravity School API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=school
+Group=school
+WorkingDirectory=/srv/school
+ExecStart=/srv/school/bin/school-api
+Restart=on-failure
+RestartSec=3
+
+# Secrets and config live in an env file owned by root, mode 0600.
+EnvironmentFile=/srv/school/school.env
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/srv/school/data
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

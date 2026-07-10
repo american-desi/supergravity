@@ -1,0 +1,13 @@
+# Go
+server/bin/
+server/*.db
+server/*.db-wal
+server/*.db-shm
+
+# Web (node_modules/ and dist/ are covered by the repo root .gitignore)
+web/*.local
+
+# never commit local artifacts
+server/api
+web/cj.txt
+*.txt.cookie
